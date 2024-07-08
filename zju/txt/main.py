@@ -1,3 +1,5 @@
+import time
+
 import requests
 import json
 
@@ -6,26 +8,38 @@ SECRET_KEY = "de5UGEFZ4CnhO4IiG1RRC4eEc7bS4ccP"
 
 
 def main():
-    url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/yi_34b_chat?access_token=" + get_access_token()
+    access_token = get_access_token()
+    url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/yi_34b_chat?access_token=" + access_token
 
-    payload = json.dumps({
-        "messages": [
-            {
-                "role": "user",
-                "content": "你好"
-            }
-        ]
-    })
-    headers = {
-        'Content-Type': 'application/json'
-    }
+    # 假设我们要发送多个请求
+    messages = ["你好", "今天天气怎么样？", "谢谢"]
 
-    response = requests.request("POST", url, headers=headers, data=payload)
+    for message in messages:
+        payload = json.dumps({
+            "messages": [
+                {
+                    "role": "user",
+                    "content": message
+                }
+            ]
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
 
-    print(response.text)
+        response = requests.post(url, headers=headers, data=payload)
+        response_text = response.text
+        print("Received:", response_text)  # 立即输出响应
 
-    data = json.loads(response.text)
-    print(data['result'])
+        # 尝试解析JSON（注意：如果响应不是有效的JSON，这将抛出异常）
+        try:
+            data = json.loads(response_text)
+            print("Data:", data.get('result', "No 'result' field in response"))
+        except json.JSONDecodeError:
+            print("Failed to decode JSON response")
+
+            # 可以在这里添加延时来模拟实时数据接收的间隔
+        time.sleep(1)
 
 
 def get_access_token():
