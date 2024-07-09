@@ -98,10 +98,6 @@ def on_message(ws, message):
         content = choices["text"][0]["content"]
         print('-------------------', end="")
         print(content, end="")
-
-        if '\n' in content:
-
-
         global answer
         answer += content
         if status == 2:

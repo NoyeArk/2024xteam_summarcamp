@@ -51,7 +51,7 @@ class AFTLocal(Module):
         key = self.key(key)
         value = self.value(value)
 
-        pos_bias = self.pos_bias[:seq_len, :seq_len] * self.local_mask[:seq_len, :seq_len]
+        pos_bias = self.pos_bias[:seq_len, :seq_len] * self.w_mask[:seq_len, :seq_len]
         pos_bias = pos_bias.unsqueeze(-1)
         pos_bias.masked_fill_(~mask, float('-inf'))
 
@@ -75,4 +75,9 @@ def _test_local_mask():
 
 
 if __name__ == '__main__':
-    _test_local_mask()
+    # _test_local_mask()
+    model = AFTLocal(1, 20, 1, True)
+    x = torch.tensor([[[23.], [49.]]])
+    y = model(x, x, x, None)
+    print(y)
+
