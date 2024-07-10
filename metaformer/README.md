@@ -139,10 +139,8 @@ python3 validate.py /path/to/imagenet  --model $MODEL -b 128 \
   --checkpoint /path/to/checkpoint 
 ```
 
-
-
 ## Train
-We use batch size of 4096 by default and we show how to train models with 8 GPUs. For multi-node training, adjust `--grad-accum-steps` according to your situations.
+默认情况下，我们使用4096的批量大小，并展示如何使用8个GPU训练模型。对于多节点训练，请根据您的情况调整`--grad-accum-steps`。
 
 
 ```bash

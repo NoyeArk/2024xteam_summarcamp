@@ -4,7 +4,6 @@ import argparse
 import json
 
 
-
 parser = argparse.ArgumentParser()
 
 parser.add_argument('checkpoint', help='21k pretrained checkpoint')
