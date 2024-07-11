@@ -7,9 +7,9 @@ import torch
 from PIL import Image
 
 from panopticapi.utils import rgb2id
-from util.box_ops import masks_to_boxes
+from DINO.util.box_ops import masks_to_boxes
 
-from .coco import make_coco_transforms
+from coco import make_coco_transforms
 
 
 class CocoPanoptic:
@@ -38,6 +38,7 @@ class CocoPanoptic:
 
         img = Image.open(img_path).convert('RGB')
         w, h = img.size
+
         if "segments_info" in ann_info:
             masks = np.asarray(Image.open(ann_path), dtype=np.uint32)
             masks = rgb2id(masks)
@@ -48,8 +49,7 @@ class CocoPanoptic:
             masks = torch.as_tensor(masks, dtype=torch.uint8)
             labels = torch.tensor([ann['category_id'] for ann in ann_info['segments_info']], dtype=torch.int64)
 
-        target = {}
-        target['image_id'] = torch.tensor([ann_info['image_id'] if "image_id" in ann_info else ann_info["id"]])
+        target = {'image_id': torch.tensor([ann_info['image_id'] if "image_id" in ann_info else ann_info["id"]])}
         if self.return_masks:
             target['masks'] = masks
         target['labels'] = labels
@@ -97,3 +97,7 @@ def build(image_set, args):
                            transforms=make_coco_transforms(image_set), return_masks=args.masks)
 
     return dataset
+
+
+if __name__ == '__main__':
+    pass

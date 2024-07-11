@@ -12,24 +12,22 @@ import torch
 from util.misc import (NestedTensor, nested_tensor_from_tensor_list,
                        accuracy, get_world_size, interpolate,
                        is_dist_avail_and_initialized, inverse_sigmoid)
-# from .DABDETR import sigmoid_focal_loss
-from util import box_ops
-import torch.nn.functional as F
 
 
 def prepare_for_cdn(dn_args, training, num_queries, num_classes, hidden_dim, label_enc):
     """
-        A major difference of DINO from DN-DETR is that the author process pattern embedding pattern embedding in its detector
-        forward function and use learnable tgt embedding, so we change this function a little bit.
-        :param dn_args: targets, dn_number, label_noise_ratio, box_noise_scale
-        :param training: if it is training or inference
-        :param num_queries: number of queires
-        :param num_classes: number of classes
-        :param hidden_dim: transformer hidden dim
-        :param label_enc: encode labels in dn
+        DINO与DN-DETR的一个主要区别在于，作者在其检测器中处理模式嵌入、模式嵌入
+        Forward 函数并使用可学习的 TGT 嵌入，因此我们稍微更改了这个函数。
+        :param dn_args：target、dn_number、label_noise_ratio、box_noise_scale
+        :param training：是训练还是推理
+        :param num_queries：查询数量
+        :param num_classes：类数
+        :param hidden_dim：变压器隐藏的昏暗
+        :param label_enc：在 dn 中编码标签
         :return:
-        """
+    """
     if training:
+        print('222:', dn_args)
         targets, dn_number, label_noise_ratio, box_noise_scale = dn_args
         # positive and negative dn queries
         dn_number = dn_number * 2

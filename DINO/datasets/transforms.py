@@ -9,8 +9,12 @@ import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as F
 
-from util.box_ops import box_xyxy_to_cxcywh
-from util.misc import interpolate
+import sys
+
+sys.path.append('D:\\Code\\Paper-code')
+
+from DINO.util.box_ops import box_xyxy_to_cxcywh
+from DINO.util.misc import interpolate
 
 
 def crop(image, target, region):
@@ -39,7 +43,6 @@ def crop(image, target, region):
         # FIXME should we update the area here if there are no boxes?
         target['masks'] = target['masks'][:, i:i + h, j:j + w]
         fields.append("masks")
-
 
     # remove elements for which the boxes or masks that have zero area
     if "boxes" in target or "masks" in target:
@@ -223,6 +226,7 @@ class RandomSelect(object):
     Randomly selects between transforms1 and transforms2,
     with probability p for transforms1 and (1 - p) for transforms2
     """
+
     def __init__(self, transforms1, transforms2, p=0.5):
         self.transforms1 = transforms1
         self.transforms2 = transforms2

@@ -1,5 +1,4 @@
 import os
-import os.path as osp
 import shutil
 import time
 import datetime
@@ -8,11 +7,13 @@ import torch
 
 from util.slconfig import SLConfig
 
+
 class Error(OSError):
     pass
 
+
 def slcopytree(src, dst, symlinks=False, ignore=None, copy_function=shutil.copyfile,
-             ignore_dangling_symlinks=False):
+               ignore_dangling_symlinks=False):
     """
     modified from shutil.copytree without copystat.
     
@@ -79,7 +80,7 @@ def slcopytree(src, dst, symlinks=False, ignore=None, copy_function=shutil.copyf
                         # otherwise let the copy occurs. copy2 will raise an error
                         if os.path.isdir(srcname):
                             slcopytree(srcname, dstname, symlinks, ignore,
-                                    copy_function)
+                                       copy_function)
                         else:
                             copy_function(srcname, dstname)
                 elif os.path.isdir(srcname):
@@ -100,6 +101,7 @@ def slcopytree(src, dst, symlinks=False, ignore=None, copy_function=shutil.copyf
         raise Error(errors)
     return dst
 
+
 def check_and_copy(src_path, tgt_path):
     if os.path.exists(tgt_path):
         return None
@@ -111,7 +113,7 @@ def remove(srcpath):
     if os.path.isdir(srcpath):
         return shutil.rmtree(srcpath)
     else:
-        return os.remove(srcpath)  
+        return os.remove(srcpath)
 
 
 def preparing_dataset(pathdict, image_set, args):
@@ -121,13 +123,13 @@ def preparing_dataset(pathdict, image_set, args):
     static_dict = data_static_info[dataset_file][image_set]
 
     copyfilelist = []
-    for k,tgt_v in pathdict.items():
+    for k, tgt_v in pathdict.items():
         if os.path.exists(tgt_v):
             if args.local_rank == 0:
                 print("path <{}> exist. remove it!".format(tgt_v))
                 remove(tgt_v)
             # continue
-        
+
         if args.local_rank == 0:
             src_v = static_dict[k]
             assert isinstance(src_v, str)
@@ -138,13 +140,13 @@ def preparing_dataset(pathdict, image_set, args):
                 cp_tgt_path = os.path.join(cp_tgt_dir, filename)
                 print('Copy from <{}> to <{}>.'.format(src_v, cp_tgt_path))
                 os.makedirs(cp_tgt_dir, exist_ok=True)
-                check_and_copy(src_v, cp_tgt_path)          
+                check_and_copy(src_v, cp_tgt_path)
 
                 # unzip
                 import zipfile
                 print("Starting unzip <{}>".format(cp_tgt_path))
                 with zipfile.ZipFile(cp_tgt_path, 'r') as zip_ref:
-                    zip_ref.extractall(os.path.dirname(cp_tgt_path))      
+                    zip_ref.extractall(os.path.dirname(cp_tgt_path))
 
                 copyfilelist.append(cp_tgt_path)
                 copyfilelist.append(tgt_v)
@@ -153,11 +155,11 @@ def preparing_dataset(pathdict, image_set, args):
                 os.makedirs(os.path.dirname(tgt_v), exist_ok=True)
                 check_and_copy(src_v, tgt_v)
                 copyfilelist.append(tgt_v)
-    
+
     if len(copyfilelist) == 0:
         copyfilelist = None
     args.copyfilelist = copyfilelist
-        
+
     if args.distributed:
         torch.distributed.barrier()
     total_time = time.time() - start_time
@@ -165,6 +167,3 @@ def preparing_dataset(pathdict, image_set, args):
         total_time_str = str(datetime.timedelta(seconds=int(total_time)))
         print('Data copy time {}'.format(total_time_str))
     return copyfilelist
-
-
-    

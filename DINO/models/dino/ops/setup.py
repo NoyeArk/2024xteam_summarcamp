@@ -8,17 +8,15 @@
 
 import os
 import glob
-
 import torch
-
+from setuptools import setup
+from setuptools import find_packages
 from torch.utils.cpp_extension import CUDA_HOME
 from torch.utils.cpp_extension import CppExtension
 from torch.utils.cpp_extension import CUDAExtension
 
-from setuptools import find_packages
-from setuptools import setup
-
 requirements = ["torch", "torchvision"]
+
 
 def get_extensions():
     this_dir = os.path.dirname(os.path.abspath(__file__))
@@ -32,8 +30,6 @@ def get_extensions():
     extension = CppExtension
     extra_compile_args = {"cxx": []}
     define_macros = []
-
-
 
     if torch.cuda.is_available() and CUDA_HOME is not None:
         extension = CUDAExtension
@@ -61,6 +57,7 @@ def get_extensions():
     ]
     return ext_modules
 
+
 setup(
     name="MultiScaleDeformableAttention",
     version="1.0",
@@ -69,5 +66,5 @@ setup(
     description="PyTorch Wrapper for CUDA Functions of Multi-Scale Deformable Attention",
     packages=find_packages(exclude=("configs", "tests",)),
     ext_modules=get_extensions(),
-    cmdclass={"build_ext": torch.utils.cpp_extension.BuildExtension},
+    cmdclass={"build_ext": torch.utils.cpp_extension.BuildExtension.with_options(use_ninja=False)},
 )

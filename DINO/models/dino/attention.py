@@ -48,6 +48,7 @@ from torch.nn.modules.utils import _single, _pair, _triple, _list_with_default
 from torch.nn import grad
 from torch import _VF
 from torch._jit_internal import boolean_dispatch, List, Optional, _overload, Tuple
+
 try:
     from torch.overrides import has_torch_function, handle_torch_function
 except:
@@ -55,6 +56,7 @@ except:
 Tensor = torch.Tensor
 
 from torch.nn.functional import linear, pad, softmax, dropout
+
 
 class MultiheadAttention(Module):
     r"""Allows the model to jointly attend to information
@@ -82,7 +84,8 @@ class MultiheadAttention(Module):
     bias_k: Optional[torch.Tensor]
     bias_v: Optional[torch.Tensor]
 
-    def __init__(self, embed_dim, num_heads, dropout=0., bias=True, add_bias_kv=False, add_zero_attn=False, kdim=None, vdim=None):
+    def __init__(self, embed_dim, num_heads, dropout=0., bias=True, add_bias_kv=False, add_zero_attn=False, kdim=None,
+                 vdim=None):
         super(MultiheadAttention, self).__init__()
         self.embed_dim = embed_dim
         self.kdim = kdim if kdim is not None else embed_dim
@@ -95,7 +98,7 @@ class MultiheadAttention(Module):
         assert self.head_dim * num_heads == self.embed_dim, "embed_dim must be divisible by num_heads"
 
         vdim = vdim if vdim is not None else embed_dim
-        self.out_proj = Linear(vdim , vdim)
+        self.out_proj = Linear(vdim, vdim)
 
         self.in_proj_bias = None
         self.in_proj_weight = None
@@ -287,7 +290,7 @@ def multi_head_attention_forward(query: Tensor,
 
     if attn_mask is not None:
         assert attn_mask.dtype == torch.float32 or attn_mask.dtype == torch.float64 or \
-            attn_mask.dtype == torch.float16 or attn_mask.dtype == torch.uint8 or attn_mask.dtype == torch.bool, \
+               attn_mask.dtype == torch.float16 or attn_mask.dtype == torch.uint8 or attn_mask.dtype == torch.bool, \
             'Only float, byte, and bool types are supported for attn_mask, not {}'.format(attn_mask.dtype)
         if attn_mask.dtype == torch.uint8:
             warnings.warn("Byte tensor for attn_mask in nn.MultiheadAttention is deprecated. Use bool tensor instead.")
@@ -306,7 +309,8 @@ def multi_head_attention_forward(query: Tensor,
 
     # convert ByteTensor key_padding_mask to bool
     if key_padding_mask is not None and key_padding_mask.dtype == torch.uint8:
-        warnings.warn("Byte tensor for key_padding_mask in nn.MultiheadAttention is deprecated. Use bool tensor instead.")
+        warnings.warn(
+            "Byte tensor for key_padding_mask in nn.MultiheadAttention is deprecated. Use bool tensor instead.")
         key_padding_mask = key_padding_mask.to(torch.bool)
 
     if bias_k is not None and bias_v is not None:
@@ -364,7 +368,6 @@ def multi_head_attention_forward(query: Tensor,
         else:
             attn_output_weights += attn_mask
 
-
     if key_padding_mask is not None:
         attn_output_weights = attn_output_weights.view(bsz, num_heads, tgt_len, src_len)
         attn_output_weights = attn_output_weights.masked_fill(
@@ -376,7 +379,7 @@ def multi_head_attention_forward(query: Tensor,
     # attn_output_weights = softmax(
     #     attn_output_weights, dim=-1)
     attn_output_weights = softmax(
-            attn_output_weights - attn_output_weights.max(dim=-1, keepdim=True)[0], dim=-1)
+        attn_output_weights - attn_output_weights.max(dim=-1, keepdim=True)[0], dim=-1)
     attn_output_weights = dropout(attn_output_weights, p=dropout_p, training=training)
 
     attn_output = torch.bmm(attn_output_weights, v)
@@ -390,4 +393,3 @@ def multi_head_attention_forward(query: Tensor,
         return attn_output, attn_output_weights.sum(dim=1) / num_heads
     else:
         return attn_output, None
-
