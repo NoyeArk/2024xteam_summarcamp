@@ -1,4 +1,4 @@
-coco_path=$1
+coco_path="D:/Code/Paper-code/DINO/Coco"
 
 python main.py \
 	--output_dir logs/DINO/R50-MS4 -c config/DINO/DINO_4scale.py --coco_path $coco_path \

@@ -1,10 +1,7 @@
-import torch
+from torchvision import datasets
 
-print(torch.cuda.is_available())
+train_dataset = datasets.cifar.CIFAR100(root='cifar100', train=True, transform=None, download=True)
+test_dataset = datasets.cifar.CIFAR100(root='cifar100', train=False, transform=None, download=True)
 
-num_gpu = 1
-# Decide which device we want to run on
-device = torch.device("cuda:0" if (torch.cuda.is_available() and num_gpu > 0) else "cpu")
-print(device)
-print(torch.cuda.get_device_name(0))
-print(torch.rand(3, 3).cuda())
+print(train_dataset)
+print(test_dataset)

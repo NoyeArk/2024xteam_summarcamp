@@ -21,17 +21,20 @@ def prepare_for_cdn(dn_args, training, num_queries, num_classes, hidden_dim, lab
         :param dn_args：target、dn_number、label_noise_ratio、box_noise_scale
         :param training：是训练还是推理
         :param num_queries：查询数量
-        :param num_classes：类数
-        :param hidden_dim：变压器隐藏的昏暗
+        :param num_classes：类别数量，模型需要区分的不同类别的总书
+        :param hidden_dim：隐藏层的维度
         :param label_enc：在 dn 中编码标签
         :return:
     """
     if training:
-        print('222:', dn_args)
+        print(dn_args)
         targets, dn_number, label_noise_ratio, box_noise_scale = dn_args
-        # positive and negative dn queries
+        print('len(target):', len(targets))
+        # 正面和负面 DN 查询
         dn_number = dn_number * 2
         known = [(torch.ones_like(t['labels'])).cuda() for t in targets]
+        print('len(known):', len(known))
+        print('known:', known)
         batch_size = len(known)
         known_num = [sum(k) for k in known]
         if int(max(known_num)) == 0:

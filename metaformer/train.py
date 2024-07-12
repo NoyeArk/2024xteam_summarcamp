@@ -33,9 +33,8 @@ r"""
 
 从 NVIDIA Apex 示例中采用的 NVIDIA CUDA 特定加速
 （https://github.com/NVIDIA/apex/tree/master/examples/imagenet）
-
-一起黑 / 版权所有 2020 Ross Wightman （https://github.com/rwightman）
 """
+
 import argparse
 import logging
 import os
@@ -124,7 +123,7 @@ group.add_argument('--dataset-download', action='store_true', default=False,
 group.add_argument('--class-map', default='', type=str, metavar='FILENAME',
                    help='path to class to idx mapping file (default: "")')
 
-# Model parameters
+# 模型参数
 group = parser.add_argument_group('Model parameters')
 group.add_argument('--model', default='resnet50', type=str, metavar='MODEL',
                    help='Name of model to train (default: "resnet50"')
@@ -190,7 +189,7 @@ group.add_argument('--clip-mode', type=str, default='norm',
 group.add_argument('--layer-decay', type=float, default=None,
                    help='layer-wise learning rate decay (default: None)')
 
-# Learning rate schedule parameters
+# 调整学习率的参数
 group = parser.add_argument_group('Learning rate schedule parameters')
 group.add_argument('--sched', default='cosine', type=str, metavar='SCHEDULER',
                    help='LR scheduler (default: "cosine"')
@@ -454,6 +453,9 @@ def main():
         create_model_args.update(head_dropout=args.head_dropout)
 
     model = create_model(**create_model_args)
+
+    from torchsummary import summary
+    summary(model, (3, 224, 224))
 
     if args.num_classes is None:
         assert hasattr(model, 'num_classes'), 'Model must have `num_classes` attr if not set on cmd line/config.'
@@ -773,9 +775,9 @@ def train_one_epoch(
     last_idx = len(loader) - 1
     num_updates = epoch * len(loader)
     for batch_idx, (input, target) in enumerate(loader):
-        print('input.shape:', input.shape)
-        print('target.shape:', target.shape)
         step = batch_idx // grad_accum_steps
+        if step % 100 == 0:
+            print('step:', step)
         if step >= num_training_steps_per_epoch:
             continue
         # last_batch = batch_idx == last_idx

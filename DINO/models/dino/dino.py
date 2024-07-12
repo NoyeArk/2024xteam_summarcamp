@@ -200,7 +200,6 @@ class DINO(nn.Module):
             self.refpoint_embed.weight.data[:, :2].uniform_(0, 1)
             self.refpoint_embed.weight.data[:, :2] = inverse_sigmoid(self.refpoint_embed.weight.data[:, :2])
             self.refpoint_embed.weight.data[:, :2].requires_grad = False
-
         if self.fix_refpoints_hw > 0:
             print("fix_refpoints_hw: {}".format(self.fix_refpoints_hw))
             assert self.random_refpoints_xy
@@ -221,9 +220,10 @@ class DINO(nn.Module):
             raise NotImplementedError('Unknown fix_refpoints_hw {}'.format(self.fix_refpoints_hw))
 
     def forward(self, samples: NestedTensor, targets: List = None):
-        """ The forward expects a NestedTensor, which consists of:
-               - samples.tensor: batched images, of shape [batch_size x 3 x H x W]
-               - samples.mask: a binary mask of shape [batch_size x H x W], containing 1 on padded pixels
+        """ The forward expects a NestedTensor, 包含2部分:
+               - samples.tensor: 批量的图像, 形状为 [batch_size x 3 x H x W]
+               - samples.mask:   一个形状为 [batch_size x H x W] 的二进制掩码, 在填充的像素上值为1
+                    这个掩码用于指示哪些像素是原始图像的一部分，哪些是由于图像大小不统一而添加的填充像素
 
             It returns a dict with the following elements:
                - "pred_logits": the classification logits (including no-object) for all queries.
@@ -732,6 +732,7 @@ def build_dino(args):
         dec_pred_class_embed_share = args.dec_pred_class_embed_share
     except:
         dec_pred_class_embed_share = True
+
     try:
         dec_pred_bbox_embed_share = args.dec_pred_bbox_embed_share
     except:

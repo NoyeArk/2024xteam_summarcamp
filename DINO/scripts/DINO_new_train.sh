@@ -1,4 +1,4 @@
-exdark_path=$1
+exdark_path="D:/Code/Paper-code/DINO/ExDark/data"
 
 python main.py \
 	--output_dir logs/DINO/R50-MS4 -c config/DINO/DINO_4scale.py --exdark_path $exdark_path \

@@ -3,7 +3,7 @@ CODE_PATH="D:\Code\Paper-code\metaformer"
 
 ALL_BATCH_SIZE=256
 NUM_GPU=1
-GRAD_ACCUM_STEPS=4  # 根据你的GPU数量和内存进行调整
+GRAD_ACCUM_STEPS=1  # 根据你的GPU数量和内存进行调整
 
 let BATCH_SIZE=ALL_BATCH_SIZE/NUM_GPU/GRAD_ACCUM_STEPS
 
