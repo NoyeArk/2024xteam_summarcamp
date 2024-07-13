@@ -14,7 +14,6 @@
 """
 Backbone modules.
 """
-from collections import OrderedDict
 import os
 
 import torch
@@ -29,6 +28,7 @@ from util.misc import NestedTensor, clean_state_dict, is_main_process
 from .position_encoding import build_position_encoding
 from .convnext import build_convnext
 from .swin_transformer import build_swin_transformer
+from .aft import build_aft_simple
 
 
 class FrozenBatchNorm2d(torch.nn.Module):
@@ -71,8 +71,13 @@ class FrozenBatchNorm2d(torch.nn.Module):
 
 
 class BackboneBase(nn.Module):
-
     def __init__(self, backbone: nn.Module, train_backbone: bool, num_channels: int, return_interm_indices: list):
+        """
+        :param backbone:  一个 nn.Module 对象，表示预训练的模型，其将被封装并可能修改
+        :param train_backbone: 一个布尔值，指示是否训练 backbone 的参数。如果为 False，则除了特定层之外，其他层的参数将设置为不计算梯度（即冻结）
+        :param num_channels: 输出特征的通道数
+        :param return_interm_indices: 一个列表，包含要返回的 backbone 中间层的索引或名称
+        """
         super().__init__()
         for name, parameter in backbone.named_parameters():
             if not train_backbone or 'layer2' not in name and 'layer3' not in name and 'layer4' not in name:
@@ -171,7 +176,8 @@ def build_backbone(args):
     elif args.backbone in ['swin_T_224_1k', 'swin_B_224_22k', 'swin_B_384_22k', 'swin_L_224_22k', 'swin_L_384_22k']:
         pretrain_img_size = int(args.backbone.split('_')[-2])
         backbone = build_swin_transformer(args.backbone, pretrain_img_size=pretrain_img_size,
-                                          out_indices=tuple(return_interm_indices), dilation=args.dilation, use_checkpoint=use_checkpoint)
+                                          out_indices=tuple(return_interm_indices), dilation=args.dilation,
+                                          use_checkpoint=use_checkpoint)
 
         # freeze some layers
         if backbone_freeze_keywords is not None:
@@ -190,6 +196,7 @@ def build_backbone(args):
             pretrainedpath = os.path.join(pretrained_dir, PTDICT[args.backbone])
             checkpoint = torch.load(pretrainedpath, map_location='cpu')['model']
             from collections import OrderedDict
+
             def key_select_function(keyname):
                 if 'head' in keyname:
                     return False
@@ -205,6 +212,9 @@ def build_backbone(args):
         backbone = build_convnext(modelname=args.backbone, pretrained=True, out_indices=tuple(return_interm_indices),
                                   backbone_dir=args.backbone_dir)
         bb_num_channels = backbone.dims[4 - len(return_interm_indices):]
+    elif args.backbone in ['aft_simple']:
+        backbone = build_aft_simple(model_name=args.backbone)
+        bb_num_channels = [backbone.d_model for _ in range(3)]
     else:
         raise NotImplementedError("Unknown backbone {}".format(args.backbone))
 

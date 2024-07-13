@@ -22,7 +22,6 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
                     device: torch.device, epoch: int, max_norm: float = 0, 
                     wo_class_error=False, lr_scheduler=None, args=None, logger=None, ema_m=None):
     scaler = torch.cuda.amp.GradScaler(enabled=args.amp)
-
     try:
         need_tgt_for_training = args.use_dn
     except:
@@ -38,8 +37,11 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
     print_freq = 10
 
     _cnt = 0
+    print('1112')
     for samples, targets in metric_logger.log_every(data_loader, print_freq, header, logger=logger):
+        print('1113')
         samples = samples.to(device)
+        print('1114')
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
         print('target:', len(targets))
 

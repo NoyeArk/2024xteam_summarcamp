@@ -1,110 +1,72 @@
 import os
 import json
-import argparse
 from PIL import Image
 
-# 标签对应的索引，如Bicycle-0, Boat-1....
-labels = ['Bicycle', 'Boat', 'Bottle', 'Bus', 'Car', 'Cat', 'Chair', 'Cup', 'Dog', 'Motorbike', 'People', 'Table']
 
+def get_dataset(labels_path, images_path, output_dir):
+    # json文件
+    annotations_data = []
+    images_data = []
+    # 遍历文件夹中的所有文件
+    count = 1
+    for filename in os.listdir(labels_path):
+        if filename.endswith('.txt'):  # 确保只处理文本文件
+            file_path = os.path.join(labels_path, filename)
+            # 打开图片
+            img_path = images_path + filename[:-4] + '.jpg'
+            img = Image.open(img_path)
 
-# 转化成RGB格式，避免Libpng警告
-def fix_image_profile(img):
-    try:
-        img = img.convert("RGB")
-    except Exception as e:
-        print(f"Error fixing color profile: {e}")
-    return img
+            height = img.height
+            width = img.width
 
+            with open(file_path, 'r') as file:
+                lines = file.readlines()
+                for line in lines:
+                    parts = line.strip().split()  # strip()用于去除行尾的换行符
+                    if len(parts) == 5:  # 确保每行有5个部分
+                        class_idx = int(parts[0])  # 类别信息
+                        x, y, w, h = map(float, parts[1:])  # x, y, w, h转换为浮点数
 
-# 同一数据集格式-jpg
-def convert_to_jpg(img_path, output_path):
-    try:
-        img = Image.open(img_path)
-        img = fix_image_profile(img)
-        jpg_path = os.path.splitext(output_path)[0] + ".jpg"
-        img.save(jpg_path)
-        return jpg_path
-    except Exception as e:
-        print(f"Error converting {img_path} to JPG: {e}")
-        return None
+                        x, y, w, h = x * width, y * height, w * width, h * height
+                        x, y = x - w / 2, y - h / 2
+                        bbox = [x, y, w, h]
 
+                        annotations_data.append({
+                            'id': count,
+                            'image_id': int(filename[5:-4]),
+                            'bbox': bbox,
+                            'category_id': class_idx,
+                            'area': w * h,
+                            'file_name': filename[:-4] + '.jpg'
+                        })
 
-def ExDark2Yolo(txts_dir: str, imgs_dir: str, ratio: str, version: int, output_dir: str):
-    ratios = ratio.split(':')
-    ratio_train, ratio_test, ratio_val = int(ratios[0]), int(ratios[1]), int(ratios[2])
-    ratio_sum = ratio_train + ratio_test + ratio_val
-    dataset_perc = {'train': ratio_train / ratio_sum, 'test': ratio_test / ratio_sum, 'val': ratio_val / ratio_sum}
+                        count += 1
+                        print(f"Category: {class_idx}, x: {x}, y: {y}, w: {w}, h: {h}")
 
-    for t in dataset_perc:
-        os.makedirs('/'.join([output_dir, t, 'images']))
-        os.makedirs('/'.join([output_dir, t, 'labels']))
+            # 图片的信息只添加1次
+            images_data.append({
+                'id': int(filename[5:-4]),
+                'file_name': filename[:-4] + '.jpg',
+                'height': height,
+                'width': width
+            })
 
-    for label in labels:
-        print(f'Processing {label}...')
-        filenames = os.listdir('/'.join([txts_dir, label]))
-        cur_idx = 0
-        files_num = len(filenames)
-
-        for filename in filenames:
-            cur_idx += 1
-            filename_no_ext = '.'.join(filename.split('.')[:-2])
-            if cur_idx < dataset_perc.get('train') * files_num:
-                set_type = 'train'
-            elif cur_idx < (dataset_perc.get('train') + dataset_perc.get('test')) * files_num:
-                set_type = 'test'
-            else:
-                set_type = 'val'
-            output_label_path = '/'.join([output_dir, set_type, 'labels', filename_no_ext + '.txt'])
-            yolo_output_file = open(output_label_path, 'a')
-
-            name_split = filename.split('.')
-            img_path = '/'.join([imgs_dir, label, '.'.join(filename.split('.')[:-1])])
-            jpg_path = convert_to_jpg(img_path, '/'.join([output_dir, set_type, 'images', os.path.basename(img_path)]))
-            if jpg_path:
-                try:
-                    img = Image.open(jpg_path)
-                except Exception as e:
-                    print(f"Error opening {jpg_path}: {e}")
-                    continue
-
-                width, height = img.size
-                txt = open('/'.join([txts_dir, label, filename]), 'r')
-                txt.readline()  # ignore first line
-                line = txt.readline()
-
-                while line != '':
-                    datas = line.strip().split()
-                    class_idx = labels.index(datas[0])
-                    x0, y0, w0, h0 = int(datas[1]), int(datas[2]), int(datas[3]), int(datas[4])
-                    if version == 5:
-                        x = (x0 + w0/2) / width
-                        y = (y0 + h0/2) / height
-                    elif version == 3:
-                        x = x0 / width
-                        y = y0 / height
-                    else:
-                        print("Version of YOLO error.")
-                        return
-                    w = w0 / width
-                    h = h0 / height
-
-                    yolo_output_file.write(' '.join([str(class_idx),
-                                                     format(x, '.6f'),
-                                                     format(y, '.6f'),
-                                                     format(w, '.6f'),
-                                                     format(h, '.6f'),
-                                                     ]) + '\n')
-                    line = txt.readline()
-
-                yolo_output_file.close()
+    # 将数据写入JSON文件
+    data = {
+        'images': images_data,
+        'annotations': annotations_data
+    }
+    json_path = '/'.join([output_dir + '.json'])
+    with open(json_path, 'w') as json_file:
+        json.dump(data, json_file, indent=4)
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--anndir', type=str, default='../ExDark/Annnotations', help="ExDark注释文件夹路径.")
-    parser.add_argument('--imgdir', type=str, default='../ExDark/images', help="ExDark图像文件夹路径")
-    parser.add_argument('--ratio', type=str, default='8:1:1', help="划分比率 train/test/val, default 8:1:1.")
-    parser.add_argument('--version', type=int, choices=[3, 5], default=5, help="转化的YOLO版本，YOLOv3和YOLOv5，YOLOv8的数据集格式跟YOLOv5一致")
-    parser.add_argument('--output-dir', type=str, default="../ExDark/processed", help="YOLO格式数据集输出的文件夹路径")
-    args = parser.parse_args()
-    ExDark2Yolo(args.anndir, args.imgdir, args.ratio, args.version, args.output_dir)
+    labels_path = 'D:\\Code\\Paper-code\\DINO\\ExDark\\processed\\train\\labels\\'
+    images_path = 'D:\\Code\\Paper-code\\DINO\\ExDark\\processed\\train\\images\\'
+    output_path = "D:\\Code\\Paper-code\\DINO\\ExDark\\data\\annotations\\instances_train2017"
+    get_dataset(labels_path, images_path, output_path)
+    labels_path = 'D:\\Code\\Paper-code\\DINO\\ExDark\\processed\\val\\labels\\'
+    images_path = 'D:\\Code\\Paper-code\\DINO\\ExDark\\processed\\val\\images\\'
+    output_path = "D:\\Code\\Paper-code\\DINO\\ExDark\\data\\annotations\\instances_val2017"
+    get_dataset(labels_path, images_path, output_path)

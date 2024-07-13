@@ -4,7 +4,7 @@ import argparse
 from PIL import Image
 
 # 标签对应的索引，如Bicycle-0, Boat-1....
-labels = ['test', 'Bicycle', 'Boat', 'Bottle', 'Bus', 'Car', 'Cat', 'Chair', 'Cup', 'Dog', 'Motorbike', 'People', 'Table']
+labels = ['Bicycle', 'Boat', 'Bottle', 'Bus', 'Car', 'Cat', 'Chair', 'Cup', 'Dog', 'Motorbike', 'People', 'Table']
 
 
 # 转化成RGB格式，避免Libpng警告
@@ -45,6 +45,8 @@ def ExDark2Yolo(txts_dir: str, imgs_dir: str, ratio: str, version: int, output_d
         cur_idx = 0
         files_num = len(filenames)
 
+        cnt = 1
+
         for filename in filenames:
             print('filename:', filename)
             cur_idx += 1
@@ -65,6 +67,8 @@ def ExDark2Yolo(txts_dir: str, imgs_dir: str, ratio: str, version: int, output_d
             txt.readline()  # ignore first line
             line = txt.readline()
 
+            annotation_data = []
+
             while line != '':
                 datas = line.strip().split()
                 class_idx = labels.index(datas[0])
@@ -82,17 +86,27 @@ def ExDark2Yolo(txts_dir: str, imgs_dir: str, ratio: str, version: int, output_d
                 w = w0 / width
                 h = h0 / height
 
-                images_data.append({filename[5:-8]: {
-                    'height': height,
-                    'width': width
-                }})
+                # 1个图片可以有多个检测目标
                 annotations_data.append({
+                    'id': cnt,
                     'image_id': int(filename[5:-8]),
                     'bbox': bbox,
-                    'category': class_idx,
+                    'category_id': class_idx,
+                    'area': w0 * h0,
                     'file_name': filename[5:-4]
                 })
                 line = txt.readline()
+
+            # 图片的信息只添加1次
+            images_data.append({
+                'id': int(filename[5:-8]),
+                'file_name': filename[:-4],
+                'height': height,
+                'width': width
+            })
+            cnt += 1
+            # annotations_data.append(annotation_data)
+
         break
     # 将数据写入JSON文件
     data = {

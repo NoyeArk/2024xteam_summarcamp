@@ -32,6 +32,7 @@ def prepare_for_cdn(dn_args, training, num_queries, num_classes, hidden_dim, lab
         print('len(target):', len(targets))
         # 正面和负面 DN 查询
         dn_number = dn_number * 2
+        print('dn_number:', dn_number)
         known = [(torch.ones_like(t['labels'])).cuda() for t in targets]
         print('len(known):', len(known))
         print('known:', known)

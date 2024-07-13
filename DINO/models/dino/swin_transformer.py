@@ -253,6 +253,7 @@ class PatchMerging(nn.Module):
         dim (int): Number of input channels.
         norm_layer (nn.Module, optional): Normalization layer.  Default: nn.LayerNorm
     """
+
     def __init__(self, dim, norm_layer=nn.LayerNorm):
         super().__init__()
         self.dim = dim
@@ -507,7 +508,8 @@ class SwinTransformer(nn.Module):
             patch_size = to_2tuple(patch_size)
             patches_resolution = [pretrain_img_size[0] // patch_size[0], pretrain_img_size[1] // patch_size[1]]
 
-            self.absolute_pos_embed = nn.Parameter(torch.zeros(1, embed_dim, patches_resolution[0], patches_resolution[1]))
+            self.absolute_pos_embed = nn.Parameter(
+                torch.zeros(1, embed_dim, patches_resolution[0], patches_resolution[1]))
             trunc_normal_(self.absolute_pos_embed, std=.02)
 
         self.pos_drop = nn.Dropout(p=drop_rate)
@@ -596,7 +598,6 @@ class SwinTransformer(nn.Module):
     #     else:
     #         raise TypeError('pretrained must be a str or None')
 
-
     def forward_raw(self, x):
         """Forward function."""
         x = self.patch_embed(x)
@@ -615,7 +616,6 @@ class SwinTransformer(nn.Module):
             layer = self.layers[i]
             x_out, H, W, x, Wh, Ww = layer(x, Wh, Ww)
 
-
             if i in self.out_indices:
                 norm_layer = getattr(self, f'norm{i}')
                 x_out = norm_layer(x_out)
@@ -628,7 +628,6 @@ class SwinTransformer(nn.Module):
         #   [torch.Size([2, 192, 256, 256]), torch.Size([2, 384, 128, 128]), \
         #       torch.Size([2, 768, 64, 64]), torch.Size([2, 1536, 32, 32])]
         return tuple(outs)
-
 
     def forward(self, tensor_list: NestedTensor):
         x = tensor_list.tensors
@@ -672,12 +671,10 @@ class SwinTransformer(nn.Module):
 
         return outs_dict
 
-
     def train(self, mode=True):
         """Convert the model into training mode while keep layers freezed."""
         super(SwinTransformer, self).train(mode)
         self._freeze_stages()
-
 
 
 def build_swin_transformer(modelname, pretrain_img_size, **kw):
@@ -686,32 +683,32 @@ def build_swin_transformer(modelname, pretrain_img_size, **kw):
     model_para_dict = {
         'swin_T_224_1k': dict(
             embed_dim=96,
-            depths=[ 2, 2, 6, 2 ],
-            num_heads=[ 3, 6, 12, 24],
+            depths=[2, 2, 6, 2],
+            num_heads=[3, 6, 12, 24],
             window_size=7
-        ),        
+        ),
         'swin_B_224_22k': dict(
             embed_dim=128,
-            depths=[ 2, 2, 18, 2 ],
-            num_heads=[ 4, 8, 16, 32 ],
+            depths=[2, 2, 18, 2],
+            num_heads=[4, 8, 16, 32],
             window_size=7
         ),
         'swin_B_384_22k': dict(
             embed_dim=128,
-            depths=[ 2, 2, 18, 2 ],
-            num_heads=[ 4, 8, 16, 32 ],
+            depths=[2, 2, 18, 2],
+            num_heads=[4, 8, 16, 32],
             window_size=12
         ),
         'swin_L_224_22k': dict(
             embed_dim=192,
-            depths=[ 2, 2, 18, 2 ],
-            num_heads=[ 6, 12, 24, 48 ],
+            depths=[2, 2, 18, 2],
+            num_heads=[6, 12, 24, 48],
             window_size=7
         ),
         'swin_L_384_22k': dict(
             embed_dim=192,
-            depths=[ 2, 2, 18, 2 ],
-            num_heads=[ 6, 12, 24, 48 ],
+            depths=[2, 2, 18, 2],
+            num_heads=[6, 12, 24, 48],
             window_size=12
         ),
     }
@@ -719,6 +716,7 @@ def build_swin_transformer(modelname, pretrain_img_size, **kw):
     kw_cgf.update(kw)
     model = SwinTransformer(pretrain_img_size=pretrain_img_size, **kw_cgf)
     return model
+
 
 if __name__ == "__main__":
     model = build_swin_transformer('swin_L_384_22k', 384, dilation=True)
