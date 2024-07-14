@@ -214,7 +214,7 @@ def build_backbone(args):
         bb_num_channels = backbone.dims[4 - len(return_interm_indices):]
     elif args.backbone in ['aft_simple']:
         backbone = build_aft_simple(model_name=args.backbone)
-        bb_num_channels = [backbone.d_model for _ in range(3)]
+        bb_num_channels = [backbone.dim for _ in range(3)]
     else:
         raise NotImplementedError("Unknown backbone {}".format(args.backbone))
 

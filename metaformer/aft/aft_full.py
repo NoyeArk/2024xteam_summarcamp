@@ -4,14 +4,14 @@ import torch.nn.functional as F
 
 
 class AFT_Full(nn.Module):
-    def __init__(self, max_len=10000, dim=128, **kwargs):
+    def __init__(self, max_len, dim, hidden_dim=64, **kwargs):
         super().__init__()
         self.dim = dim
-        self.w_q = nn.Linear(dim, dim)
-        self.w_k = nn.Linear(dim, dim)
-        self.w_v = nn.Linear(dim, dim)
+        self.w_q = nn.Linear(dim, hidden_dim)
+        self.w_k = nn.Linear(dim, hidden_dim)
+        self.w_v = nn.Linear(dim, hidden_dim)
+        self.out = nn.Linear(hidden_dim, dim)
         self.w = nn.Parameter(torch.Tensor(max_len, max_len))
-        self.out = nn.Linear(dim, dim)
 
     def forward(self, x):
         B, H, W, C = x.shape

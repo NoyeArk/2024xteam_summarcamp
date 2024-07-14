@@ -27,6 +27,8 @@ from timm.models.layers import trunc_normal_, DropPath
 from timm.data import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 
 from aft.aft_full import AFT_Full
+from aft.aft_simple import AFT_Simple
+from aft.aft_conv import AFT_Conv
 
 
 def _cfg(url='', **kwargs):
@@ -666,6 +668,30 @@ class MetaFormer(nn.Module):
         x = self.forward_features(x)
         x = self.head(x)
         return x
+
+
+@register_model
+def aftconv(pretrained=False, **kwargs):
+    model = MetaFormer(
+        depths=[1, 1, 2, 1],
+        dims=[8, 16, 32, 64],
+        token_mixers=AFT_Conv,
+        norm_layers=partial(LayerNormGeneral, normalized_dim=(1, 2, 3), eps=1e-6, bias=False),
+        **kwargs
+    )
+    return model
+
+
+@register_model
+def aftsimple(pretrained=False, **kwargs):
+    model = MetaFormer(
+        depths=[1, 1, 2, 1],
+        dims=[8, 16, 32, 64],
+        token_mixers=AFT_Simple,
+        norm_layers=partial(LayerNormGeneral, normalized_dim=(1, 2, 3), eps=1e-6, bias=False),
+        **kwargs
+    )
+    return model
 
 
 @register_model
