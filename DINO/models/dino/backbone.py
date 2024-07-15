@@ -29,6 +29,8 @@ from .position_encoding import build_position_encoding
 from .convnext import build_convnext
 from .swin_transformer import build_swin_transformer
 from DINO.models.aft.aft_simple import build_aft_simple
+from DINO.models.aft.aft_full import build_aft_full
+from DINO.models.aft.aft_conv import build_aft_conv
 
 
 class FrozenBatchNorm2d(torch.nn.Module):
@@ -214,6 +216,12 @@ def build_backbone(args):
         bb_num_channels = backbone.dims[4 - len(return_interm_indices):]
     elif args.backbone in ['aft_simple']:
         backbone = build_aft_simple(model_name=args.backbone)
+        bb_num_channels = [backbone.dim for _ in range(3)]
+    elif args.backbone in ['aft_full']:
+        backbone = build_aft_full(model_name=args.backbone)
+        bb_num_channels = [backbone.dim for _ in range(3)]
+    elif args.backbone in ['aft_conv']:
+        backbone = build_aft_conv(model_name=args.backbone)
         bb_num_channels = [backbone.dim for _ in range(3)]
     else:
         raise NotImplementedError("Unknown backbone {}".format(args.backbone))

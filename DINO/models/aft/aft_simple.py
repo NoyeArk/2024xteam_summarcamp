@@ -21,8 +21,11 @@ class AFT_Simple(nn.Module):
         k = self.w_k(x)
         v = self.w_v(x)
 
-        num = torch.exp(k) * v
-        den = torch.exp(k)
+        max_k = k.max(dim=0)
+        exp_k = torch.exp(k - max_k)
+
+        num = exp_k * v
+        den = exp_k
         y = torch.sigmoid(q) * num / den
 
         return self.out(y).view(B, C, H, W)

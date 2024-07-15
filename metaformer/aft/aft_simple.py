@@ -1,6 +1,5 @@
 import torch
 from torch import nn
-import torch.nn.functional as F
 
 
 class AFT_Simple(nn.Module):
@@ -18,15 +17,18 @@ class AFT_Simple(nn.Module):
         k = self.w_k(x)
         v = self.w_v(x)
 
-        num = torch.exp(k) * v
-        den = torch.exp(k)
+        max_k = k.max(dim=0, keepdims=True)[0]
+        exp_k = torch.exp(k - max_k)
 
-        y = F.sigmoid(q) * num / den
+        num = exp_k * v
+        den = exp_k
+
+        y = torch.sigmoid(q) * num / den
         return self.out(y)
 
 
 if __name__ == '__main__':
-    model = AFT_Simple(1)
-    test_x = torch.tensor([[[23.], [49.]]])
+    model = AFT_Simple(3)
+    test_x = torch.randn(1, 1, 1, 3)
     test_y = model(test_x)
     print(test_y)

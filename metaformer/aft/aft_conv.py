@@ -6,42 +6,43 @@ class AFT_Conv(nn.Module):
     def __init__(self, dim, hidden_dim=64, head_num=4, kernel_size=3, **kwargs):
         super().__init__()
         self.head_num = head_num
-        self.dim = dim // head_num
         self.hidden_dim = hidden_dim
 
-        self.w_q = nn.Linear(self.dim, hidden_dim)
-        self.w_v = nn.Linear(self.dim, hidden_dim)
-        self.w_k = nn.Linear(self.dim, hidden_dim)
-        # self.w = nn.Parameter(torch.zeros(head_num, kernel_size), requires_grad=True)
-        self.conv2d = nn.Conv2d(hidden_dim, hidden_dim, kernel_size, padding=1)
-        # self.conv1d.weight.data = torch.exp(self.w) - 1  # 为什么要减1
-        self.out = nn.Linear(hidden_dim, self.dim)
+        self.w_q = nn.Linear(dim, hidden_dim)
+        self.w_v = nn.Linear(dim, hidden_dim)
+        self.w_k = nn.Linear(dim, hidden_dim)
+        self.conv2ds = nn.ModuleList([
+            nn.Conv2d(hidden_dim // head_num, hidden_dim // head_num, kernel_size, padding=1)
+            for _ in range(head_num)
+        ])
+        self.out = nn.Linear(hidden_dim, dim)
+
+    def attention(self, q, k, v, conv):
+        max_k = k.max(dim=0, keepdims=True)[0]
+        exp_k = torch.exp(k - max_k)
+
+        num = conv(exp_k * v) + exp_k * v
+        den = conv(exp_k) + exp_k
+
+        y = torch.sigmoid(q) * num / den
+        return y
 
     def forward(self, x):
         B, H, W, C = x.shape
-        x = x.reshape(B, self.head_num, H, W, -1)
-        print('x.shape:', x.shape)
+        assert C % self.head_num == 0
 
-        q = self.w_q(x)
-        v = self.w_v(x)
-        k = self.w_k(x)
+        q = self.w_q(x).view(B, self.head_num, -1, H, W)
+        v = self.w_v(x).view(B, self.head_num, -1, H, W)
+        k = self.w_k(x).view(B, self.head_num, -1, H, W)
 
-        print('q.shape:', q.shape)
-        print('v.shape:', v.shape)
-        print('k.shape:', k.shape)
+        q_s = [q[:, i, :self.hidden_dim // self.head_num, :, :].contiguous() for i in range(self.head_num)]
+        k_s = [k[:, i, :self.hidden_dim // self.head_num, :, :].contiguous() for i in range(self.head_num)]
+        v_s = [v[:, i, :self.hidden_dim // self.head_num, :, :].contiguous() for i in range(self.head_num)]
 
-        conv_result = self.conv2d((torch.exp(k) * v).view(-1, self.hidden_dim, H, W))
-        print('conv_result.shape:', conv_result.shape)
-        conv_result = conv_result.view(B, self.head_num, H, W, -1)
+        attentions = [self.attention(q_, k_, v_, conv) for conv, q_, k_, v_ in zip(self.conv2ds, q_s, k_s, v_s)]
 
-        num = conv_result + torch.mul(torch.exp(k), v)
-        den = conv_result + torch.exp(k)
-        y = torch.sigmoid(q) * num / den
-        t = self.out(y)
-        print('t.shape:', t.shape)
-        t = t.view(B, H, W, -1)
-        print('t.shape:', t.shape)
-        return self.out(y).view(B, H, W, -1)
+        y = torch.cat(attentions, dim=1).view(B, H, W, -1)
+        return self.out(y)
 
 
 if __name__ == '__main__':

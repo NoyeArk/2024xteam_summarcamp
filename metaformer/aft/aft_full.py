@@ -1,6 +1,5 @@
 import torch
 from torch import nn
-import torch.nn.functional as F
 
 
 class AFT_Full(nn.Module):
@@ -22,9 +21,15 @@ class AFT_Full(nn.Module):
 
         w_bias = self.w[:H, :W].unsqueeze(0)
 
-        num = torch.exp(w_bias) @ (torch.exp(k) * v)
-        den = torch.exp(w_bias) @ torch.exp(k)
-        y = F.sigmoid(q) * num / den
+        max_k = k.max(dim=0, keepdims=True)[0]
+        max_w_bias = w_bias.max(dim=0, keepdims=True)[0]
+
+        exp_k = torch.exp(k - max_k)
+        exp_w_bias = torch.exp(w_bias - max_w_bias)
+
+        num = exp_w_bias @ (exp_k * v)
+        den = exp_w_bias @ exp_k
+        y = torch.sigmoid(q) * num / den
 
         return self.out(y)
 
