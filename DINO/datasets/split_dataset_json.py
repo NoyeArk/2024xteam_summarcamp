@@ -35,7 +35,6 @@ def ExDark2Yolo(txts_dir: str, imgs_dir: str, ratio: str, version: int, output_d
     ratio_sum = ratio_train + ratio_test + ratio_val
     dataset_perc = {'train': ratio_train / ratio_sum, 'test': ratio_test / ratio_sum, 'val': ratio_val / ratio_sum}
 
-    # json文件
     annotations_data = []
     images_data = []
 
@@ -108,10 +107,18 @@ def ExDark2Yolo(txts_dir: str, imgs_dir: str, ratio: str, version: int, output_d
             # annotations_data.append(annotation_data)
 
         break
-    # 将数据写入JSON文件
+
+    categories_data = []
+    for i in range(len(labels)):
+        categories_data.append({
+            'id': i,
+            'name': labels[i]
+        })
+
     data = {
         'images': images_data,
-        'annotations': annotations_data
+        'annotations': annotations_data,
+        'categories': categories_data
     }
     json_path = '/'.join([output_dir + '.json'])
     with open(json_path, 'w') as json_file:

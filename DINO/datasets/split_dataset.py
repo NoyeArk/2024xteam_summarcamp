@@ -3,6 +3,9 @@ import json
 from PIL import Image
 
 
+labels = ['Bicycle', 'Boat', 'Bottle', 'Bus', 'Car', 'Cat', 'Chair', 'Cup', 'Dog', 'Motorbike', 'People', 'Table']
+
+
 def get_dataset(labels_path, images_path, output_dir):
     # json文件
     annotations_data = []
@@ -37,7 +40,8 @@ def get_dataset(labels_path, images_path, output_dir):
                             'bbox': bbox,
                             'category_id': class_idx,
                             'area': w * h,
-                            'file_name': filename[:-4] + '.jpg'
+                            'file_name': filename[:-4] + '.jpg',
+                            'iscrowd': 0
                         })
 
                         count += 1
@@ -51,10 +55,16 @@ def get_dataset(labels_path, images_path, output_dir):
                 'width': width
             })
 
-    # 将数据写入JSON文件
+    categories_data = []
+    for i in range(len(labels)):
+        categories_data.append({
+            'id': i,
+            'name': labels[i]
+        })
     data = {
         'images': images_data,
-        'annotations': annotations_data
+        'annotations': annotations_data,
+        'categories': categories_data
     }
     json_path = '/'.join([output_dir + '.json'])
     with open(json_path, 'w') as json_file:

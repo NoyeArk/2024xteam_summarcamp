@@ -23,12 +23,12 @@ from torch import nn
 from torchvision.models._utils import IntermediateLayerGetter
 from typing import Dict, List
 
-from util.misc import NestedTensor, clean_state_dict, is_main_process
+from DINO.util.misc import NestedTensor, clean_state_dict, is_main_process
 
 from .position_encoding import build_position_encoding
 from .convnext import build_convnext
 from .swin_transformer import build_swin_transformer
-from .aft import build_aft_simple
+from DINO.models.aft.aft_simple import build_aft_simple
 
 
 class FrozenBatchNorm2d(torch.nn.Module):

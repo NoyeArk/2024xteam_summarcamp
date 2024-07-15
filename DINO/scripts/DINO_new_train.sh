@@ -1,3 +1,4 @@
+dataset_path="D:/Code/Paper-code/DINO/Coco"
 dataset_path="D:/Code/Paper-code/DINO/ExDark/data"
 
 python main.py \

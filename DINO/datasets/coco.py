@@ -366,11 +366,11 @@ class CocoDetection(torchvision.datasets.CocoDetection):
         try:
             img, target = super(CocoDetection, self).__getitem__(idx)
         except:
-            print("Error idx: {}".format(idx))
             idx += 1
             img, target = super(CocoDetection, self).__getitem__(idx)
         image_id = self.ids[idx]
         target = {'image_id': image_id, 'annotations': target}
+
         img, target = self.prepare(img, target)
 
         if self._transforms is not None:
@@ -380,7 +380,6 @@ class CocoDetection(torchvision.datasets.CocoDetection):
         if self.aux_target_hacks is not None:
             for hack_runner in self.aux_target_hacks:
                 target, img = hack_runner(target, img=img)
-
         return img, target
 
 
