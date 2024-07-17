@@ -107,11 +107,11 @@ class DINO(nn.Module):
                     nn.GroupNorm(32, hidden_dim),
                 ))
             for _ in range(num_feature_levels - num_backbone_outs):
+                in_channels = hidden_dim
                 input_proj_list.append(nn.Sequential(
                     nn.Conv2d(in_channels, hidden_dim, kernel_size=3, stride=2, padding=1),
                     nn.GroupNorm(32, hidden_dim),
                 ))
-                in_channels = hidden_dim
             self.input_proj = nn.ModuleList(input_proj_list)
         else:
             assert two_stage_type == 'no', "two_stage_type should be no if num_feature_levels=1 !!!"
@@ -243,6 +243,7 @@ class DINO(nn.Module):
         masks = []
         for l, feat in enumerate(features):
             src, mask = feat.decompose()
+            print('srcs.shape:', src.shape)
             srcs.append(self.input_proj[l](src))
             masks.append(mask)
             assert mask is not None

@@ -39,9 +39,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
     _cnt = 0
     for samples, targets in metric_logger.log_every(data_loader, print_freq, header, logger=logger):
         samples = samples.to(device)
-        print('samples:', samples.shape)
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
-        print('target:', targets)
 
         with torch.cuda.amp.autocast(enabled=args.amp):
             if need_tgt_for_training:
@@ -54,7 +52,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
 
             losses = sum(loss_dict[k] * weight_dict[k] for k in loss_dict.keys() if k in weight_dict)
 
-        # reduce losses over all GPUs for logging purposes
+        # 减少所有 GPU 的损失，以进行日志记录
         loss_dict_reduced = utils.reduce_dict(loss_dict)
         loss_dict_reduced_unscaled = {f'{k}_unscaled': v
                                       for k, v in loss_dict_reduced.items()}

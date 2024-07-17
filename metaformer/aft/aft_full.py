@@ -26,8 +26,11 @@ class AFT_Full(nn.Module):
 
         exp_k = torch.exp(k - max_k)
         exp_w_bias = torch.exp(w_bias - max_w_bias)
+        print('exp_w_bias.shape:', exp_w_bias.shape)
+        print('(exp_k * v).shape:', (exp_k * v).shape)
 
         num = exp_w_bias @ (exp_k * v)
+        print('num.shape:', num.shape)
         den = exp_w_bias @ exp_k
         y = torch.sigmoid(q) * num / den
 
@@ -38,5 +41,5 @@ if __name__ == '__main__':
     model = AFT_Full(100, 64)
     test_x = torch.randn(256, 56, 56, 64)
     test_y = model(test_x)
-    print(test_y)
+    print(test_y.shape)
 

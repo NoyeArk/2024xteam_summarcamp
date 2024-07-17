@@ -9,7 +9,7 @@ lr_backbone_names = ['backbone.0']
 lr_linear_proj_names = ['reference_points', 'sampling_offsets']
 lr_linear_proj_mult = 0.1
 ddetr_lr_param = False
-batch_size = 1
+batch_size = 8
 weight_decay = 0.0001
 epochs = 12
 lr_drop = 11
@@ -22,7 +22,7 @@ lr_drop_list = [33, 45]
 
 modelname = 'dino'
 frozen_weights = None
-backbone = 'resnet50'
+backbone = 'aft_full'
 use_checkpoint = False
 
 dilation = False

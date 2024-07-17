@@ -62,13 +62,13 @@ class ConvNeXt(nn.Module):
           https://arxiv.org/pdf/2201.03545.pdf
 
     Args:
-        in_chans (int): Number of input image channels. Default: 3
-        num_classes (int): Number of classes for classification head. Default: 1000
-        depths (tuple(int)): Number of blocks at each stage. Default: [3, 3, 9, 3]
-        dims (int): Feature dimension at each stage. Default: [96, 192, 384, 768]
-        drop_path_rate (float): Stochastic depth rate. Default: 0.
-        layer_scale_init_value (float): Init value for Layer Scale. Default: 1e-6.
-        head_init_scale (float): Init scaling value for classifier weights and biases. Default: 1.
+        in_chans （int）：输入图像通道数。默认值：3
+        num_classes （int）：分类头的类数。默认值：1000
+        depths （tuple（int））：每个阶段的块数。默认值：[3， 3， 9， 3]
+        dims （int）：每个阶段的特征维度。默认值：[96， 192， 384， 768]
+        drop_path_rate （float）：随机深度率。默认值：0。
+        layer_scale_init_value （float）：图层缩放的初始化值。默认值：1e-6。
+        head_init_scale （float）：初始化分类器权重和偏差的缩放值。默认值：1。
     """
 
     def __init__(self, in_chans=3, num_classes=1000,
@@ -132,6 +132,7 @@ class ConvNeXt(nn.Module):
             if i in self.out_indices:
                 norm_layer = getattr(self, f'norm{i}')
                 x_out = norm_layer(x)
+                print('x_out.shape:', x_out.shape)
                 outs.append(x_out)
         # return self.norm(x.mean([-2, -1])) # global average pooling, (N, C, H, W) -> (N, C)
         return tuple(outs)
@@ -141,8 +142,12 @@ class ConvNeXt(nn.Module):
     #     return x
 
     def forward(self, tensor_list: NestedTensor):
+        print('tensor_list:', tensor_list)
         x = tensor_list.tensors
         outs = self.forward_features(x)
+
+        print("outs.len:", len(outs))
+        print("outs[0]:", outs[0].shape)
 
         # collect for nesttensors        
         outs_dict = {}

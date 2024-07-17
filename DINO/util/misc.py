@@ -5,7 +5,7 @@ Misc functions, including distributed helpers.
 Mostly copy-paste from torchvision references.
 """
 import os
-import random 
+import random
 import subprocess
 import time
 from collections import OrderedDict, defaultdict, deque
@@ -23,6 +23,7 @@ import colorsys
 
 # needed due to empty tensor bug in pytorch and torchvision 0.5
 import torchvision
+
 __torchvision_need_compat_flag = float(torchvision.__version__.split('.')[1]) < 7
 if __torchvision_need_compat_flag:
     from torchvision.ops import _new_empty_tensor
@@ -267,6 +268,7 @@ def get_sha():
 
     def _run(command):
         return subprocess.check_output(command, cwd=cwd).decode('ascii').strip()
+
     sha = 'N/A'
     diff = "clean"
     branch = 'N/A'
@@ -283,7 +285,6 @@ def get_sha():
 
 
 def collate_fn(batch):
-
     batch = list(zip(*batch))
     batch[0] = nested_tensor_from_tensor_list(batch[0])
     return tuple(batch)
@@ -473,7 +474,7 @@ def save_on_master(*args, **kwargs):
 
 
 def init_distributed_mode(args):
-    if 'WORLD_SIZE' in os.environ and os.environ['WORLD_SIZE'] != '': # 'RANK' in os.environ and 
+    if 'WORLD_SIZE' in os.environ and os.environ['WORLD_SIZE'] != '':  # 'RANK' in os.environ and
         # args.rank = int(os.environ["RANK"])
         # args.world_size = int(os.environ['WORLD_SIZE'])
         # args.gpu = args.local_rank = int(os.environ['LOCAL_RANK'])
@@ -496,7 +497,9 @@ def init_distributed_mode(args):
         args.gpu = args.local_rank = int(os.environ['SLURM_LOCALID'])
         args.world_size = int(os.environ['SLURM_NPROCS'])
 
-        print('world size: {}, world rank: {}, local rank: {}, device_count: {}'.format(args.world_size, args.rank, args.local_rank, torch.cuda.device_count()))
+        print('world size: {}, world rank: {}, local rank: {}, device_count: {}'.format(args.world_size, args.rank,
+                                                                                        args.local_rank,
+                                                                                        torch.cuda.device_count()))
     else:
         print('Not using distributed mode')
         args.distributed = False
@@ -557,26 +560,27 @@ def interpolate(input, size=None, scale_factor=None, mode="nearest", align_corne
         return torchvision.ops.misc.interpolate(input, size, scale_factor, mode, align_corners)
 
 
-
 class color_sys():
     def __init__(self, num_colors) -> None:
         self.num_colors = num_colors
-        colors=[]
+        colors = []
         for i in np.arange(0., 360., 360. / num_colors):
-            hue = i/360.
-            lightness = (50 + np.random.rand() * 10)/100.
-            saturation = (90 + np.random.rand() * 10)/100.
-            colors.append(tuple([int(j*255) for j in colorsys.hls_to_rgb(hue, lightness, saturation)]))
+            hue = i / 360.
+            lightness = (50 + np.random.rand() * 10) / 100.
+            saturation = (90 + np.random.rand() * 10) / 100.
+            colors.append(tuple([int(j * 255) for j in colorsys.hls_to_rgb(hue, lightness, saturation)]))
         self.colors = colors
 
     def __call__(self, idx):
         return self.colors[idx]
 
+
 def inverse_sigmoid(x, eps=1e-3):
     x = x.clamp(min=0, max=1)
     x1 = x.clamp(min=eps)
     x2 = (1 - x).clamp(min=eps)
-    return torch.log(x1/x2)
+    return torch.log(x1 / x2)
+
 
 def clean_state_dict(state_dict):
     new_state_dict = OrderedDict()

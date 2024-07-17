@@ -15,7 +15,8 @@ class AFT_Full(nn.Module):
         self.w = nn.Parameter(torch.Tensor(max_len, max_len))
 
     def forward_features(self, x):
-        B, H, W, C = x.shape
+        B, C, H, W = x.shape
+        x = x.reshape(B, H, W, C)
 
         q = self.w_q(x)
         k = self.w_k(x)
@@ -33,7 +34,7 @@ class AFT_Full(nn.Module):
         den = exp_w_bias @ exp_k
         y = torch.sigmoid(q) * num / den
 
-        return self.out(y)
+        return self.out(y).view(B, C, H, W)
 
     def forward(self, tensor_list: NestedTensor):
         x = tensor_list.tensors
