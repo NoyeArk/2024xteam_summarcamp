@@ -15,16 +15,13 @@ class AFT_Simple(nn.Module):
 
     def forward_features(self, x):
         B, C, H, W = x.shape
-        x = x.reshape(B, H, W, C)
+        x = x.reshape(B, -1, C)
 
         q = self.w_q(x)
         k = self.w_k(x)
         v = self.w_v(x)
 
-        num = torch.exp(k) * v
-        den = torch.exp(k)
-        y = torch.sigmoid(q) * num / den
-
+        y = torch.sigmoid(q) * (torch.softmax(k, dim=1) * v).sum(dim=1, keepdim=True)
         return self.out(y).view(B, C, H, W)
 
     def forward(self, tensor_list: NestedTensor):

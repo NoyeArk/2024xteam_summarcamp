@@ -3,7 +3,7 @@ from torch import nn
 
 
 class AFT_Full(nn.Module):
-    def __init__(self, max_len, dim, hidden_dim=64, **kwargs):
+    def __init__(self, dim, hidden_dim=128, max_len=10000, **kwargs):
         super().__init__()
         self.dim = dim
         self.w_q = nn.Linear(dim, hidden_dim)
@@ -25,7 +25,7 @@ class AFT_Full(nn.Module):
         k = self.w_k(x)
         v = self.w_v(x)
 
-        w = torch.matmul(self.u.transpose(0, 1), self.v)
+        w = torch.matmul(self.u, self.v.transpose(0, 1))
         w_bias = w[:H * W, :H * W].unsqueeze(0)
 
         max_k = k.max(dim=0, keepdims=True)[0]
@@ -34,7 +34,7 @@ class AFT_Full(nn.Module):
         exp_k = torch.exp(k - max_k)
         exp_w_bias = torch.exp(w_bias - max_w_bias)
 
-        num = exp_w_bias @ (exp_k * v)
+        num = (exp_k * v) @ exp_w_bias
         den = exp_w_bias @ exp_k
         y = torch.sigmoid(q) * num / den
 

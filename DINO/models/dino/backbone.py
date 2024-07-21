@@ -28,6 +28,7 @@ from DINO.util.misc import NestedTensor, clean_state_dict, is_main_process
 from .position_encoding import build_position_encoding
 from .convnext import build_convnext
 from .swin_transformer import build_swin_transformer
+
 from DINO.models.aft.aft_simple import build_aft_simple
 from DINO.models.aft.aft_full import build_aft_full
 from DINO.models.aft.aft_conv import build_aft_conv
