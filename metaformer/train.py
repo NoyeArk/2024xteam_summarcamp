@@ -109,6 +109,7 @@ parser = argparse.ArgumentParser(description='PyTorch CIFAR100 Training')
 
 # Dataset parameters
 group = parser.add_argument_group('Dataset parameters')
+
 # 将此参数保留在数据集组之外，因为它是位置性的。
 parser.add_argument('data_dir', metavar='DIR',
                     help='path to dataset')
@@ -738,7 +739,7 @@ def main():
 
             if output_dir is not None:
                 utils.update_summary(
-                    epoch, train_metrics, eval_metrics, os.path.join(output_dir, 'summary.csv'),
+                    epoch, train_metrics, eval_metrics, os.path.join(output_dir, 'full_summary.csv'),
                     write_header=best_metric is None, log_wandb=args.log_wandb and has_wandb)
 
             if saver is not None:

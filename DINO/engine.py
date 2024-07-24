@@ -264,6 +264,12 @@ def evaluate(model, criterion, postprocessors, data_loader, base_ds, device, out
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
     print("Averaged stats:", metric_logger)
+
+    # 写入txt文件
+    with (output_dir / "log.txt").open("a") as f:
+        for key, value in metric_logger.items():
+            metric_logger.write(f"{key}: {value}\n")
+
     if coco_evaluator is not None:
         coco_evaluator.synchronize_between_processes()
     if panoptic_evaluator is not None:
