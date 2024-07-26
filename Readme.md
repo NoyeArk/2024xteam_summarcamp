@@ -1,5 +1,7 @@
 # 2024 X-Team夏令营考核
 
+模型训练的结果保存在[huggingface](https://huggingface.co/horiki/2024X-TeamSummarCamp)中。
+
 一些实现细节记录在以下博客中：
 1. [2024年X-Team夏令营考核任务1实现](https://zhouzimu.top/2024/07/25/2024%E5%B9%B4X-Team%E5%A4%8F%E4%BB%A4%E8%90%A5%E8%80%83%E6%A0%B8%E4%BB%BB%E5%8A%A11/)
 2. [2024年X-Team夏令营考核任务2实现](https://zhouzimu.top/2024/07/26/2024%E5%B9%B4X-Team%E5%A4%8F%E4%BB%A4%E8%90%A5%E8%80%83%E6%A0%B8%E4%BB%BB%E5%8A%A12/)
