@@ -77,8 +77,6 @@ cd $CODE_PATH && sh distributed_train.sh $NUM_GPU \
 | AFT-Conv1   | [1, 1, 2, 1] | [8, 16, 16, 16]     | 24     | 9.4%  | 28.7% |
 | AFT-Conv2   | [2, 2, 4, 2] | [64, 128, 320, 512] | 15     | 12.9% | 36.5% |
 
-每个模型的最好权重保存在[models](metaformer/result/models)中。
-
 训练模型Loss变化过程如下：
 
 <center><img src="metaformer/result/img/loss_full1.png" width="410"></center>
