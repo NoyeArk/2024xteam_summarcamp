@@ -61,16 +61,16 @@ parser.add_argument('--split', metavar='NAME', default='validation',
                     help='dataset split (default: validation)')
 parser.add_argument('--dataset-download', action='store_true', default=False,
                     help='Allow download of dataset for torch/ and tfds/ datasets that support it.')
-parser.add_argument('--model', '-m', metavar='NAME', default='dpn92',
-                    help='model architecture (default: dpn92)')
+parser.add_argument('--models', '-m', metavar='NAME', default='dpn92',
+                    help='models architecture (default: dpn92)')
 parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 2)')
 parser.add_argument('-b', '--batch-size', default=256, type=int,
                     metavar='N', help='mini-batch size (default: 256)')
 parser.add_argument('--img-size', default=None, type=int,
-                    metavar='N', help='Input image dimension, uses model default if empty')
+                    metavar='N', help='Input image dimension, uses models default if empty')
 parser.add_argument('--input-size', default=None, nargs=3, type=int,
-                    metavar='N N N', help='Input all image dimensions (d h w, e.g. --input-size 3 224 224), uses model default if empty')
+                    metavar='N N N', help='Input all image dimensions (d h w, e.g. --input-size 3 224 224), uses models default if empty')
 parser.add_argument('--use-train-size', action='store_true', default=False,
                     help='force use of train input size, even when test size is specified in pretrained cfg')
 parser.add_argument('--crop-pct', default=None, type=float,
@@ -80,7 +80,7 @@ parser.add_argument('--mean', type=float, nargs='+', default=None, metavar='MEAN
 parser.add_argument('--std', type=float,  nargs='+', default=None, metavar='STD',
                     help='Override std deviation of of dataset')
 parser.add_argument('--interpolation', default='', type=str, metavar='NAME',
-                    help='Image resize interpolation type (overrides model)')
+                    help='Image resize interpolation type (overrides models)')
 parser.add_argument('--num-classes', type=int, default=None,
                     help='Number classes in dataset')
 parser.add_argument('--class-map', default='', type=str, metavar='FILENAME',
@@ -92,7 +92,7 @@ parser.add_argument('--log-freq', default=10, type=int,
 parser.add_argument('--checkpoint', default='', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
 parser.add_argument('--pretrained', dest='pretrained', action='store_true',
-                    help='use pre-trained model')
+                    help='use pre-trained models')
 parser.add_argument('--num-gpu', type=int, default=1,
                     help='Number of GPUS to use')
 parser.add_argument('--test-pool', dest='test_pool', action='store_true',
@@ -115,7 +115,7 @@ parser.add_argument('--use-ema', dest='use_ema', action='store_true',
                     help='use ema version of weights if present')
 scripting_group = parser.add_mutually_exclusive_group()
 scripting_group.add_argument('--torchscript', dest='torchscript', action='store_true',
-                    help='torch.jit.script the full model')
+                    help='torch.jit.script the full models')
 scripting_group.add_argument('--aot-autograd', default=False, action='store_true',
                     help="Enable AOT Autograd support. (It's recommended to use this option with `--fuser nvfuser` together)")
 parser.add_argument('--fuser', default='', type=str,
@@ -129,7 +129,7 @@ parser.add_argument('--real-labels', default='', type=str, metavar='FILENAME',
 parser.add_argument('--valid-labels', default='', type=str, metavar='FILENAME',
                     help='Valid label indices txt file for validation of partial label space')
 parser.add_argument('--retry', default=False, action='store_true',
-                    help='Enable batch size decay & retry for single model validation')
+                    help='Enable batch size decay & retry for single models validation')
 
 
 def validate(args):
@@ -158,7 +158,7 @@ def validate(args):
     if args.fast_norm:
         set_fast_norm()
 
-    # create model
+    # create models
     model = create_model(
         args.model,
         pretrained=args.pretrained,
@@ -337,7 +337,7 @@ def main():
     model_cfgs = []
     model_names = []
     if os.path.isdir(args.checkpoint):
-        # validate all checkpoints in a path with same model
+        # validate all checkpoints in a path with same models
         checkpoints = glob.glob(args.checkpoint + '/*.pth.tar')
         checkpoints += glob.glob(args.checkpoint + '/*.pth')
         model_names = list_models(args.model)
@@ -349,7 +349,7 @@ def main():
             model_names = list_models(pretrained=True, exclude_filters=['*_in21k', '*_in22k', '*_dino'])
             model_cfgs = [(n, '') for n in model_names]
         elif not is_model(args.model):
-            # model name doesn't exist, try as wildcard filter
+            # models name doesn't exist, try as wildcard filter
             model_names = list_models(args.model)
             model_cfgs = [(n, '') for n in model_names]
 

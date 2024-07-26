@@ -368,13 +368,13 @@ class SLConfig(object):
         Merge the dict parsed by MultipleKVAction into this cfg.
 
         Examples:
-            >>> options = {'model.backbone.depth': 50,
-            ...            'model.backbone.with_cp':True}
-            >>> cfg = Config(dict(model=dict(backbone=dict(type='ResNet'))))
+            >>> options = {'models.backbone.depth': 50,
+            ...            'models.backbone.with_cp':True}
+            >>> cfg = Config(dict(models=dict(backbone=dict(type='ResNet'))))
             >>> cfg.merge_from_dict(options)
             >>> cfg_dict = super(Config, self).__getattribute__('_cfg_dict')
             >>> assert cfg_dict == dict(
-            ...     model=dict(backbone=dict(depth=50, with_cp=True)))
+            ...     models=dict(backbone=dict(depth=50, with_cp=True)))
 
         Args:
             options (dict): dict of configs to merge from.

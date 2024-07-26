@@ -155,7 +155,7 @@ class DeformableTransformer(nn.Module):
         self.d_model = d_model
         self.nhead = nhead
         self.dec_layers = num_decoder_layers
-        self.num_queries = num_queries  # useful for single stage model only
+        self.num_queries = num_queries  # useful for single stage models only
         self.num_patterns = num_patterns
         if not isinstance(num_patterns, int):
             Warning("num_patterns should be int but {}".format(type(num_patterns)))

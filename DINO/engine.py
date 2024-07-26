@@ -163,7 +163,7 @@ def evaluate(model, criterion, postprocessors, data_loader, base_ds, device, out
                 outputs = model(samples, targets)
             else:
                 outputs = model(samples)
-            # outputs = model(samples)
+            # outputs = models(samples)
 
             loss_dict = criterion(outputs, targets)
         weight_dict = criterion.weight_dict
@@ -266,7 +266,7 @@ def evaluate(model, criterion, postprocessors, data_loader, base_ds, device, out
     print("Averaged stats:", metric_logger)
 
     # 写入txt文件
-    with (output_dir / "log.txt").open("a") as f:
+    with (output_dir / "simple_result.txt").open("a") as f:
         for key, value in metric_logger.items():
             metric_logger.write(f"{key}: {value}\n")
 

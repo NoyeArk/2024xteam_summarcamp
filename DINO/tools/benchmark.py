@@ -2,7 +2,7 @@
 # Copyright (c) 2023 IDEA. All Rights Reserved.
 # ------------------------------------------------------------------------
 # ------------------------------------------------------------------------
-# Copyright (c) 2021 megvii-model. All Rights Reserved.
+# Copyright (c) 2021 megvii-models. All Rights Reserved.
 # ------------------------------------------------------------------------
 
 # taken from https://gist.github.com/fmassa/c0fbb9fe7bf53b533b5cc241f5c8234c with a few modifications
@@ -480,11 +480,11 @@ def flop_count(
     customized_ops: typing.Union[typing.Dict[str, typing.Callable], None] = None,
 ) -> typing.DefaultDict[str, float]:
     """
-    Given a model and an input to the model, compute the Gflops of the given
-    model. Note the input should have a batch size of 1.
+    Given a models and an input to the models, compute the Gflops of the given
+    models. Note the input should have a batch size of 1.
     Args:
-        model (nn.Module): The model to compute flop counts.
-        inputs (tuple): Inputs that are passed to `model` to count flops.
+        model (nn.Module): The models to compute flop counts.
+        inputs (tuple): Inputs that are passed to `models` to count flops.
             Inputs need to be in a tuple.
         whitelist (list(str)): Whitelist of operations that will be counted. It
             needs to be a subset of _SUPPORTED_OPS. By default, the function
@@ -657,7 +657,7 @@ def benchmark():
     res = {"flops": fmt_res(np.array(tmp)), "time": fmt_res(np.array(tmp2))}
     # print(res)
 
-    output_file = os.path.join(main_args.output_dir, "flops", "log.txt")
+    output_file = os.path.join(main_args.output_dir, "flops", "simple_result.txt")
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, "a") as f:
         f.write(main_args.commad_txt + "\n")

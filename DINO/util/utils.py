@@ -392,12 +392,12 @@ def random_boxes(num=1, scale=1, rng=None):
 class ModelEma(torch.nn.Module):
     def __init__(self, model, decay=0.9997, device=None):
         super(ModelEma, self).__init__()
-        # make a copy of the model for accumulating moving average of weights
+        # make a copy of the models for accumulating moving average of weights
         self.module = deepcopy(model)
         self.module.eval()
 
         self.decay = decay
-        self.device = device  # perform ema on different device from model if set
+        self.device = device  # perform ema on different device from models if set
         if self.device is not None:
             self.module.to(device=device)
 

@@ -438,7 +438,7 @@ class SwinTransformer(nn.Module):
         A PyTorch impl of : `Swin Transformer: Hierarchical Vision Transformer using Shifted Windows`  -
           https://arxiv.org/pdf/2103.14030
     Args:
-        pretrain_img_size (int): Input image size for training the pretrained model,
+        pretrain_img_size (int): Input image size for training the pretrained models,
             used in absolute postion embedding. Default 224.
         patch_size (int | tuple(int)): Patch size. Default: 4.
         in_chans (int): Number of input image channels. Default: 3.
@@ -672,7 +672,7 @@ class SwinTransformer(nn.Module):
         return outs_dict
 
     def train(self, mode=True):
-        """Convert the model into training mode while keep layers freezed."""
+        """Convert the models into training mode while keep layers freezed."""
         super(SwinTransformer, self).train(mode)
         self._freeze_stages()
 

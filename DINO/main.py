@@ -141,7 +141,7 @@ def main(args):
     np.random.seed(seed)
     random.seed(seed)
 
-    # build model
+    # build models
     model, criterion, postprocessors = build_model_main(args)
     wo_class_error = False
     model.to(device)
@@ -203,7 +203,7 @@ def main(args):
 
     if args.frozen_weights is not None:
         checkpoint = torch.load(args.frozen_weights, map_location='cpu')
-        model_without_ddp.detr.load_state_dict(checkpoint['model'])
+        model_without_ddp.detr.load_state_dict(checkpoint['models'])
 
     output_dir = Path(args.output_dir)
     if os.path.exists(os.path.join(args.output_dir, 'checkpoint.pth')):
@@ -214,7 +214,7 @@ def main(args):
                 args.resume, map_location='cpu', check_hash=True)
         else:
             checkpoint = torch.load(args.resume, map_location='cpu')
-        model_without_ddp.load_state_dict(checkpoint['model'])
+        model_without_ddp.load_state_dict(checkpoint['models'])
         if args.use_ema:
             if 'ema_model' in checkpoint:
                 ema_m.module.load_state_dict(utils.clean_state_dict(checkpoint['ema_model']))
@@ -228,7 +228,7 @@ def main(args):
             args.start_epoch = checkpoint['epoch'] + 1
 
     if (not args.resume) and args.pretrain_model_path:
-        checkpoint = torch.load(args.pretrain_model_path, map_location='cpu')['model']
+        checkpoint = torch.load(args.pretrain_model_path, map_location='cpu')['models']
         from collections import OrderedDict
         _ignorekeywordlist = args.finetune_ignore if args.finetune_ignore else []
         ignorelist = []
@@ -264,7 +264,7 @@ def main(args):
 
         log_stats = {**{f'test_{k}': v for k, v in test_stats.items()}}
         if args.output_dir and utils.is_main_process():
-            with (output_dir / "log.txt").open("a") as f:
+            with (output_dir / "simple_result.txt").open("a") as f:
                 f.write(json.dumps(log_stats) + "\n")
 
         return
@@ -292,7 +292,7 @@ def main(args):
                 checkpoint_paths.append(output_dir / f'checkpoint{epoch:04}.pth')
             for checkpoint_path in checkpoint_paths:
                 weights = {
-                    'model': model_without_ddp.state_dict(),
+                    'models': model_without_ddp.state_dict(),
                     'optimizer': optimizer.state_dict(),
                     'lr_scheduler': lr_scheduler.state_dict(),
                     'epoch': epoch,
@@ -314,7 +314,7 @@ def main(args):
         if _isbest:
             checkpoint_path = output_dir / 'checkpoint_best_regular.pth'
             utils.save_on_master({
-                'model': model_without_ddp.state_dict(),
+                'models': model_without_ddp.state_dict(),
                 'optimizer': optimizer.state_dict(),
                 'lr_scheduler': lr_scheduler.state_dict(),
                 'epoch': epoch,
@@ -337,7 +337,7 @@ def main(args):
             if _isbest:
                 checkpoint_path = output_dir / 'checkpoint_best_ema.pth'
                 utils.save_on_master({
-                    'model': ema_m.module.state_dict(),
+                    'models': ema_m.module.state_dict(),
                     'optimizer': optimizer.state_dict(),
                     'lr_scheduler': lr_scheduler.state_dict(),
                     'epoch': epoch,
@@ -360,7 +360,7 @@ def main(args):
         log_stats['epoch_time'] = epoch_time_str
 
         if args.output_dir and utils.is_main_process():
-            with (output_dir / "log.txt").open("a") as f:
+            with (output_dir / "simple_result.txt").open("a") as f:
                 f.write(json.dumps(log_stats) + "\n")
 
             # for evaluation logs

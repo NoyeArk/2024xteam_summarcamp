@@ -3,7 +3,7 @@
 # Copyright (c) 2022 IDEA. All Rights Reserved.
 # Licensed under the Apache License, Version 2.0 [see LICENSE for details]
 # ------------------------------------------------------------------------
-# Conditional DETR model and criterion classes.
+# Conditional DETR models and criterion classes.
 # Copyright (c) 2021 Microsoft. All Rights Reserved.
 # Licensed under the Apache License, Version 2.0 [see LICENSE for details]
 # ------------------------------------------------------------------------
@@ -61,7 +61,7 @@ class DINO(nn.Module):
                  dn_label_noise_ratio=0.5,
                  dn_labelbook_size=100,
                  ):
-        """ Initializes the model.
+        """ Initializes the models.
         Parameters:
             backbone: torch module of the backbone to be used. See backbone.py
             transformer: torch module of the transformer architecture. See transformer.py
@@ -337,7 +337,7 @@ class DINO(nn.Module):
 class SetCriterion(nn.Module):
     """ This class computes the loss for Conditional DETR.
     The process happens in two steps:
-        1) we compute hungarian assignment between ground truth boxes and the outputs of the model
+        1) we compute hungarian assignment between ground truth boxes and the outputs of the models
         2) we supervise each pair of matched ground-truth / prediction (supervise class and box)
     """
 
@@ -479,7 +479,7 @@ class SetCriterion(nn.Module):
     def forward(self, outputs, targets, return_indices=False):
         """ This performs the loss computation.
         Parameters:
-             outputs: dict of tensors, see the output specification of the model for the format
+             outputs: dict of tensors, see the output specification of the models for the format
              targets: list of dicts, such that len(targets) == batch_size.
                       The expected keys in each dict depends on the losses applied, see each loss' doc
             
@@ -643,7 +643,7 @@ class SetCriterion(nn.Module):
 
 
 class PostProcess(nn.Module):
-    """ This module converts the model's output into the format expected by the coco api"""
+    """ This module converts the models's output into the format expected by the coco api"""
 
     def __init__(self, num_select=100, nms_iou_threshold=-1) -> None:
         super().__init__()
@@ -654,7 +654,7 @@ class PostProcess(nn.Module):
     def forward(self, outputs, target_sizes, not_to_xyxy=False, test=False):
         """ Perform the computation
         Parameters:
-            outputs: raw outputs of the model
+            outputs: raw outputs of the models
             target_sizes: tensor of dimension [batch_size x 2] containing the size of each images of the batch
                           For evaluation, this must be the original image size (before any data augmentation)
                           For visualization, this should be the image size after data augment, but before padding

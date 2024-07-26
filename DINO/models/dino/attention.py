@@ -59,14 +59,14 @@ from torch.nn.functional import linear, pad, softmax, dropout
 
 
 class MultiheadAttention(Module):
-    r"""Allows the model to jointly attend to information
+    r"""Allows the models to jointly attend to information
     from different representation subspaces.
     See reference: Attention Is All You Need
     .. math::
         \text{MultiHead}(Q, K, V) = \text{Concat}(head_1,\dots,head_h)W^O
         \text{where} head_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)
     Args:
-        embed_dim: total dimension of the model.
+        embed_dim: total dimension of the models.
         num_heads: parallel attention heads.
         dropout: a Dropout layer on attn_output_weights. Default: 0.0.
         bias: add bias as module parameter. Default: True.
@@ -212,7 +212,7 @@ def multi_head_attention_forward(query: Tensor,
     Args:
         query, key, value: map a query and a set of key-value pairs to an output.
             See "Attention Is All You Need" for more details.
-        embed_dim_to_check: total dimension of the model.
+        embed_dim_to_check: total dimension of the models.
         num_heads: parallel attention heads.
         in_proj_weight, in_proj_bias: input projection weight and bias.
         bias_k, bias_v: bias of the key and value sequences to be added at dim=0.

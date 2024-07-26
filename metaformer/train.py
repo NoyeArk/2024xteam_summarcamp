@@ -126,25 +126,25 @@ group.add_argument('--class-map', default='', type=str, metavar='FILENAME',
 
 # 模型参数
 group = parser.add_argument_group('Model parameters')
-group.add_argument('--model', default='resnet50', type=str, metavar='MODEL',
-                   help='Name of model to train (default: "resnet50"')
+group.add_argument('--models', default='resnet50', type=str, metavar='MODEL',
+                   help='Name of models to train (default: "resnet50"')
 group.add_argument('--pretrained', action='store_true', default=False,
                    help='Start with pretrained version of specified network (if avail)')
 group.add_argument('--initial-checkpoint', default='', type=str, metavar='PATH',
-                   help='Initialize model from this checkpoint (default: none)')
+                   help='Initialize models from this checkpoint (default: none)')
 group.add_argument('--resume', default='', type=str, metavar='PATH',
-                   help='Resume full model and optimizer state from checkpoint (default: none)')
+                   help='Resume full models and optimizer state from checkpoint (default: none)')
 group.add_argument('--no-resume-opt', action='store_true', default=False,
-                   help='prevent resume of optimizer state when resuming model')
+                   help='prevent resume of optimizer state when resuming models')
 group.add_argument('--num-classes', type=int, default=None, metavar='N',
                    help='number of label classes (Model default if None)')
 group.add_argument('--gp', default=None, type=str, metavar='POOL',
                    help='Global pool type, one of (fast, avg, max, avgmax, avgmaxc). Model default if None.')
 group.add_argument('--img-size', type=int, default=None, metavar='N',
-                   help='Image patch size (default: None => model default)')
+                   help='Image patch size (default: None => models default)')
 group.add_argument('--input-size', default=None, nargs=3, type=int,
                    metavar='N N N',
-                   help='Input all image dimensions (d h w, e.g. --input-size 3 224 224), uses model default if empty')
+                   help='Input all image dimensions (d h w, e.g. --input-size 3 224 224), uses models default if empty')
 group.add_argument('--crop-pct', default=None, type=float,
                    metavar='N', help='Input image center crop percent (for validation only)')
 group.add_argument('--mean', type=float, nargs='+', default=None, metavar='MEAN',
@@ -152,7 +152,7 @@ group.add_argument('--mean', type=float, nargs='+', default=None, metavar='MEAN'
 group.add_argument('--std', type=float, nargs='+', default=None, metavar='STD',
                    help='Override std deviation of dataset')
 group.add_argument('--interpolation', default='', type=str, metavar='NAME',
-                   help='Image resize interpolation type (overrides model)')
+                   help='Image resize interpolation type (overrides models)')
 group.add_argument('-b', '--batch-size', type=int, default=128, metavar='N',
                    help='Input batch size for training (default: 128)')
 group.add_argument('-vb', '--validation-batch-size', type=int, default=None, metavar='N',
@@ -161,7 +161,7 @@ group.add_argument('--channels-last', action='store_true', default=False,
                    help='Use channels_last memory layout')
 scripting_group = group.add_mutually_exclusive_group()
 scripting_group.add_argument('--torchscript', dest='torchscript', action='store_true',
-                             help='torch.jit.script the full model')
+                             help='torch.jit.script the full models')
 scripting_group.add_argument('--aot-autograd', default=False, action='store_true',
                              help="Enable AOT Autograd support. (It's recommended to use this option with `--fuser nvfuser` together)")
 group.add_argument('--fuser', default='', type=str,
@@ -169,7 +169,7 @@ group.add_argument('--fuser', default='', type=str,
 group.add_argument('--fast-norm', default=False, action='store_true',
                    help='enable experimental fast-norm')
 group.add_argument('--grad-checkpointing', action='store_true', default=False,
-                   help='Enable gradient checkpointing through model blocks/stages')
+                   help='Enable gradient checkpointing through models blocks/stages')
 
 # Optimizer parameters
 group = parser.add_argument_group('Optimizer parameters')
@@ -313,12 +313,12 @@ group.add_argument('--split-bn', action='store_true',
 
 # 模型指数移动平均
 group = parser.add_argument_group('Model exponential moving average parameters')
-group.add_argument('--model-ema', action='store_true', default=False,
-                   help='Enable tracking moving average of model weights')
-group.add_argument('--model-ema-force-cpu', action='store_true', default=False,
+group.add_argument('--models-ema', action='store_true', default=False,
+                   help='Enable tracking moving average of models weights')
+group.add_argument('--models-ema-force-cpu', action='store_true', default=False,
                    help='Force ema to be tracked on CPU, rank=0 node only. Disables EMA validation.')
-group.add_argument('--model-ema-decay', type=float, default=0.9998,
-                   help='decay factor for model weights moving average (default: 0.9998)')
+group.add_argument('--models-ema-decay', type=float, default=0.9998,
+                   help='decay factor for models weights moving average (default: 0.9998)')
 
 # Misc
 group = parser.add_argument_group('Miscellaneous parameters')
@@ -482,7 +482,7 @@ def main():
         assert num_aug_splits > 1 or args.resplit
         model = convert_splitbn_model(model, max(num_aug_splits, 2))
 
-    # move model to GPU, enable channels last layout if set
+    # move models to GPU, enable channels last layout if set
     model.cuda()
     if args.channels_last:
         model = model.to(memory_format=torch.channels_last)
@@ -499,12 +499,12 @@ def main():
             model = convert_sync_batchnorm(model)
         if args.local_rank == 0:
             _logger.info(
-                'Converted model to use Synchronized BatchNorm. WARNING: You may have issues if using '
+                'Converted models to use Synchronized BatchNorm. WARNING: You may have issues if using '
                 'zero initialized BN layers (enabled by default for ResNets) while sync-bn enabled.')
 
     if args.torchscript:
-        assert not use_amp == 'apex', 'Cannot use APEX AMP with torchscripted model'
-        assert not args.sync_bn, 'Cannot use SyncBatchNorm with torchscripted model'
+        assert not use_amp == 'apex', 'Cannot use APEX AMP with torchscripted models'
+        assert not args.sync_bn, 'Cannot use SyncBatchNorm with torchscripted models'
         model = torch.jit.script(model)
     if args.aot_autograd:
         assert has_functorch, "functorch is needed for --aot-autograd"
@@ -538,10 +538,10 @@ def main():
             loss_scaler=None if args.no_resume_opt else loss_scaler,
             log_info=args.local_rank == 0)
 
-    # setup exponential moving average of model weights, SWA could be used here too
+    # setup exponential moving average of models weights, SWA could be used here too
     model_ema = None
     if args.model_ema:
-        # Important to create EMA model after cuda(), DP wrapper, and AMP but before DDP wrapper
+        # Important to create EMA models after cuda(), DP wrapper, and AMP but before DDP wrapper
         model_ema = utils.ModelEmaV2(
             model, decay=args.model_ema_decay, device='cpu' if args.model_ema_force_cpu else None)
         if args.resume:
@@ -558,7 +558,7 @@ def main():
             if args.local_rank == 0:
                 _logger.info("Using native Torch DistributedDataParallel.")
             model = NativeDDP(model, device_ids=[args.local_rank], broadcast_buffers=not args.no_ddp_bb)
-        # NOTE: EMA model does not need to be wrapped by DDP
+        # NOTE: EMA models does not need to be wrapped by DDP
 
     # setup learning rate schedule and starting epoch
     lr_scheduler, num_epochs = create_scheduler(args, optimizer)

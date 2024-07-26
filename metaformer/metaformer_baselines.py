@@ -593,7 +593,7 @@ class MetaFormer(nn.Module):
         self.num_classes = num_classes
 
         if not isinstance(depths, (list, tuple)):
-            depths = [depths]  # it means the model has only one stage
+            depths = [depths]  # it means the models has only one stage
         if not isinstance(dims, (list, tuple)):
             dims = [dims]
 
