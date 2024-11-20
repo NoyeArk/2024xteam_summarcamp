@@ -1,4 +1,4 @@
-# 2024 X-Team夏令营考核
+# 2024 X-Team 夏令营考核
 
 模型训练的结果保存在[huggingface](https://huggingface.co/horiki/2024X-TeamSummarCamp)中。
 
